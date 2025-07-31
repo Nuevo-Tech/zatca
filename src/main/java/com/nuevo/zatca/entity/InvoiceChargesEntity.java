@@ -27,7 +27,7 @@ public class InvoiceChargesEntity {
     @Column(nullable = false)
     private BigDecimal amount;
 
-    @Column
+    @Column(name = "reason")
     private String reason;
 
     @Column(name = "vat_rate_percentage")
