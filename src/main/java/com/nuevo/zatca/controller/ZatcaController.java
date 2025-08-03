@@ -31,8 +31,8 @@ public class ZatcaController {
 
     @Operation(summary = "Onboarding EGS Unit and generate CSID")
     @PostMapping("/compliance")
-    public ResponseEntity<JsonNode> onboardEGSAndGenerateZatcaCSID(@RequestParam String otp, @RequestParam String acceptVersion) throws JsonProcessingException {
-        return zatcaService.onboardEgsUnit(otp, acceptVersion);
+    public ResponseEntity<JsonNode> onboardEGSAndGenerateZatcaCSID(@RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
+        return zatcaService.onboardEgsUnit(requestBody);
     }
 
     @Operation(summary = "Checking with zatca the invoice is in compliance")
@@ -45,5 +45,17 @@ public class ZatcaController {
     @PostMapping("/production/csids")
     public ResponseEntity<JsonNode> generateZatcaProductionCSID(@RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
         return zatcaService.generateZatcaProductionCSID(requestBody);
+    }
+
+    @Operation(summary = "Report the simplified invoice/debit note/credit note to zatca")
+    @PostMapping("/invoices/reporting/single")
+    public ResponseEntity<JsonNode> reportSimplifiedInvoiceOrCreditNoteOrDebitNoteToZatca(@RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
+        return zatcaService.reportSimplifiedInvoiceOrCreditNoteOrDebitNoteToZatca(requestBody);
+    }
+
+    @Operation(summary = "Report the standard invoice/debit note/credit note to zatca")
+    @PostMapping("/invoices/clearance/single")
+    public ResponseEntity<JsonNode> reportStandardInvoiceOrCreditNoteOrDebitNoteToZatca(@RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
+        return zatcaService.reportStandardInvoiceOrCreditNoteOrDebitNoteToZatca(requestBody);
     }
 }

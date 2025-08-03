@@ -3,13 +3,12 @@ package com.nuevo.zatca.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Data
 @Entity
-@Table(name = "zatca_compliance_csid_credentials")
+@Table(name = "zatca_onboarding_credentials", uniqueConstraints = @UniqueConstraint(columnNames = "solution_provider_name"))
 public class ZatcaOnboardingCredentialsEntity {
 
     @Id
@@ -17,18 +16,38 @@ public class ZatcaOnboardingCredentialsEntity {
     @Column(columnDefinition = "uuid")
     private UUID id;
 
-    @Column(name = "binarySecurityToken", nullable = false)
-    private String binarySecurityToken;
+    @Column(name = "solution_provider_name", nullable = false)
+    private String solutionProviderName;
 
-    @Column(name = "secret", nullable = false)
-    private String secret;
+    @Column(name = "compliance_request_id")
+    private String complianceRequestId;
 
+    @Column(name = "prod_compliance_request_id")
+    private String prodComplianceRequestId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
     @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
+
+    @Column(name = "csr", length = 2048)
+    private String csr;
+
+    @Column(name = "secret")
+    private String secret;
+
+    @Column(name = "binary_security_token", length = 2048)
+    private String binarySecurityToken;
+
+    @Column(name = "prod_disposition_message")
+    private String prodDispositionMessage;
+
+    @Column(name = "prod_secret")
+    private String prodSecret;
+
+    @Column(name = "prod_binary_security_token", length = 2048)
+    private String prodBinarySecurityToken;
 
 
     @PrePersist

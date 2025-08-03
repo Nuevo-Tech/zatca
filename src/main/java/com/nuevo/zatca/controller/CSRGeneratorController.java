@@ -15,9 +15,9 @@ public class CSRGeneratorController {
 
 //    TODO: Add the properties file as multipartformdata and download the file in respective folder and get csr from that
     @PostMapping("/generateCsr")
-    public Map<String, String> generateCsr(@RequestParam String filePathWithFileName) throws IOException {
+    public Map<String, String> generateCsr(@RequestBody Map<String, Object> requestBody) throws IOException {
         FatooraCliService fatooraCliService = new FatooraCliService();
-        String csrContent = fatooraCliService.fatooraGenerateCsrForFile(filePathWithFileName);
+        String csrContent = fatooraCliService.fatooraGenerateCsrForFile(requestBody.get("filePathWithFileName").toString());
         return Map.of("csr", csrContent);
     }
 }

@@ -18,7 +18,7 @@ public class ZatcaApplication {
 
 //        System.out.println(fatooraCliService.fatooraGenerateInvoiceRequest("Standard_Invoice.xml"));
 //        System.out.println(fatooraCliService.fatooraValidateInvoice("Standard_Invoice.xml"));
-        System.out.println(fatooraCliService.fatooraSignSimplifiedInvoice("Standard_Invoice.xml"));;
+        System.out.println(fatooraCliService.fatooraSignInvoice("Standard_Invoice.xml"));;
 
     }
 }

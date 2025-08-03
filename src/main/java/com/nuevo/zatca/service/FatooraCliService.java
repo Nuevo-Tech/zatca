@@ -38,7 +38,7 @@ public class FatooraCliService {
         return invoiceRequestAsJsonNode;
     }
 
-    public String fatooraSignSimplifiedInvoice(String invoiceFilePathWithFileName) throws IOException {
+    public String fatooraSignInvoice(String invoiceFilePathWithFileName) throws IOException {
         Runtime rt = Runtime.getRuntime();
         Process pr = rt.exec(FatooraCliCommands.SIGN_INVOICE + invoiceFilePathWithFileName);
         String invoiceHash = getInvoiceHashFromStreamOfCliProcess(pr);

@@ -26,8 +26,11 @@ target/
 /nbdist/
 /.nb-gradle/
 build/
+/src/logs
 !**/src/main/**/build/
 !**/src/test/**/build/
+*.csr
+*.key
 
 ### VS Code ###
 .vscode/
