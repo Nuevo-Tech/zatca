@@ -13,12 +13,12 @@ public class ZatcaApplication {
         FatooraCliService fatooraCliService = new FatooraCliService();
 //        System.out.println(fatooraCliService.fatooraGenerateCsrForFile("csr-config-template.properties"));
 
-//        System.out.println(fatooraCliService.fatooraGenerateInvoiceHash("Standard_Invoice.xml"));
+        System.out.println(fatooraCliService.fatooraGenerateInvoiceHash("Standard_Invoice.xml"));
 //        System.out.println("qrcode :"+fatooraCliService.fatooraGenerateQrForInvoice("Standard_Invoice.xml"));
 
 //        System.out.println(fatooraCliService.fatooraGenerateInvoiceRequest("Standard_Invoice.xml"));
 //        System.out.println(fatooraCliService.fatooraValidateInvoice("Standard_Invoice.xml"));
-        System.out.println(fatooraCliService.fatooraSignInvoice("Standard_Invoice.xml"));;
+//        System.out.println(fatooraCliService.fatooraSignInvoice("Standard_Invoice.xml"));;
 
     }
 }
