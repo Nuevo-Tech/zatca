@@ -11,6 +11,7 @@ public class FileUtils {
     private static final String CSR_EXTENSION = ".csr";
     private static final String JSON_EXTENSION = ".json";
     private static final String TEXT_EXTENSION = ".txt";
+    private static final String KEY_EXTENSION = ".key";
     private static final String ROOT_DIR = "."; // Current working directory (project root)
     private static final long POLL_INTERVAL_MS = 200;
     private static final long MAX_WAIT_TIME_MS = 1500;
@@ -27,6 +28,7 @@ public class FileUtils {
             case ("json") -> JSON_EXTENSION;
             case ("csr") -> CSR_EXTENSION;
             case ("txt") -> TEXT_EXTENSION;
+            case ("key") -> KEY_EXTENSION;
             default -> throw new RuntimeException("valid filetype not specified");
         };
 

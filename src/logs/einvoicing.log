@@ -2779,3 +2779,8 @@ java.io.IOException: No .csr file found within the timeout period (1500 ms).
 2025-08-14T23:06:59.453+05:30  INFO 10011 --- [zatca] [http-nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
 2025-08-14T23:06:59.454+05:30  INFO 10011 --- [zatca] [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
 2025-08-14T23:06:59.455+05:30  INFO 10011 --- [zatca] [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2025-08-14T23:11:58.465+05:30  INFO 10011 --- [zatca] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-08-14T23:11:58.470+05:30  INFO 10011 --- [zatca] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-08-14T23:11:58.472+05:30  INFO 10011 --- [zatca] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-08-14T23:11:58.474+05:30  INFO 10011 --- [zatca] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-08-14T23:11:58.474+05:30  INFO 10011 --- [zatca] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.

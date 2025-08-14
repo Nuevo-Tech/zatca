@@ -11,6 +11,7 @@ import com.nuevo.zatca.entity.ZatcaOnboardingCredentialsEntity;
 import com.nuevo.zatca.repository.EgsClientRepository;
 import com.nuevo.zatca.repository.InvoicesRepository;
 import com.nuevo.zatca.repository.ZatcaOnboardingCredentialsRepository;
+import com.nuevo.zatca.utils.FileUtils;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 import com.nuevo.zatca.constants.ZatcaAttributes;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -99,6 +101,12 @@ public class ZatcaService {
         String csrPropertiesFileNameWithPath = createCsrPropertiesFileAndGetItsLocation(requestBody);
         String csr = fatooraCliService.fatooraGenerateCsrForFile(csrPropertiesFileNameWithPath);
 
+        String csrPrivateKey = "";
+        if(csr!=null || !csr.isEmpty()){
+            String parentPath = new File(csrPropertiesFileNameWithPath).getParent();
+            csrPrivateKey = FileUtils.getLatestFileContentForFileType("key", parentPath);
+        }
+
 
         if (csr == null || csr.isEmpty()) {
             ObjectMapper mapper = new ObjectMapper();
@@ -137,6 +145,7 @@ public class ZatcaService {
             entity.setCsr(csr);
             entity.setEgsClientName(egsClientName);
             entity.setComplianceRequestId(requestId);
+            entity.setCsrPrivateKey(csrPrivateKey);
 
             EgsClientEntity egsClientEntity = egsClientRepository.findByEgsClientName(egsClientName);
             entity.setEgsClientEntity(egsClientEntity);

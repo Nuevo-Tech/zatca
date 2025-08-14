@@ -38,6 +38,9 @@ public class ZatcaOnboardingCredentialsEntity {
     @Column(name = "csr", length = 2048)
     private String csr;
 
+    @Column(name = "csr_private_key", length = 2048)
+    private String csrPrivateKey;
+
     @Column(name = "secret")
     private String secret;
 
