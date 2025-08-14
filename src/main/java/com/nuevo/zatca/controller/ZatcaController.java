@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -30,14 +31,20 @@ public class ZatcaController {
 
 
     @Operation(summary = "Onboarding EGS Unit and generate CSID")
-    @PostMapping("/compliance")
-    public ResponseEntity<JsonNode> onboardEGSAndGenerateZatcaCSID(@RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
-        return zatcaService.onboardEgsUnit(requestBody);
+    @PostMapping("/onboardClient")
+    public ResponseEntity<JsonNode> onboardEGSAndGenerateZatcaCSID(@RequestBody Map<String, Object> requestBody) throws IOException {
+        return zatcaService.onboardClient(requestBody);
     }
 
     @Operation(summary = "Checking with zatca the invoice is in compliance")
     @PostMapping("/compliance/invoice")
     public ResponseEntity<JsonNode> performComplianceCheckOnInvoiceZatca(@RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
+        return zatcaService.verifyInvoiceIsZatcaCompliant(requestBody);
+    }
+
+    @Operation(summary = "Generate Invoice request and update it with newly generated invoice hash")
+    @PostMapping("/generateInvoiceRequest")
+    public ResponseEntity<JsonNode> genrerateInvoiceRequestAndUpdateInvoiceHash(@RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
         return zatcaService.verifyInvoiceIsZatcaCompliant(requestBody);
     }
 

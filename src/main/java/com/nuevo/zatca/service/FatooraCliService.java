@@ -7,6 +7,7 @@ import com.nuevo.zatca.utils.FileUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -17,9 +18,12 @@ public class FatooraCliService {
 
     // fatoora csr -csrConfig fileName -privateKey fileName -generatedCsr fileName -pem
     public String fatooraGenerateCsrForFile(String csrConfigFilePathWithFileName) throws IOException {
+        String parentPath = new File(csrConfigFilePathWithFileName).getParent();
+        String fileName = new File(csrConfigFilePathWithFileName).getName();
         Runtime rt = Runtime.getRuntime();
-        Process pr = rt.exec(FatooraCliCommands.GENERATE_CSR + csrConfigFilePathWithFileName + FatooraCliCommands.NON_PROD_ENVIROMENT);
-        return FileUtils.getLatestFileContentForFileType("csr");
+        Process pr = rt.exec(FatooraCliCommands.GENERATE_CSR + fileName + FatooraCliCommands.NON_PROD_ENVIROMENT, null, // use default environment
+                new File(parentPath));
+        return FileUtils.getLatestFileContentForFileType("csr", parentPath);
     }
 
     public String fatooraGenerateInvoiceHash(String invoiceFilePathWithFileName) throws IOException {
@@ -30,9 +34,10 @@ public class FatooraCliService {
     }
 
     public JsonNode fatooraGenerateInvoiceRequest(String invoiceFilePathWithFileName) throws IOException {
+        String parentPath = new File(invoiceFilePathWithFileName).getParent();
         Runtime rt = Runtime.getRuntime();
         Process pr = rt.exec(FatooraCliCommands.GENERATE_INVOICE_REQUEST + invoiceFilePathWithFileName);
-        String requestJson = FileUtils.getLatestFileContentForFileType("json");
+        String requestJson = FileUtils.getLatestFileContentForFileType("json", parentPath);
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode invoiceRequestAsJsonNode = objectMapper.readTree(requestJson);
         return invoiceRequestAsJsonNode;

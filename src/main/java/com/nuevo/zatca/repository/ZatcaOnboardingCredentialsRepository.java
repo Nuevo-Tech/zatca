@@ -13,6 +13,7 @@ import java.util.UUID;
 @Repository
 public interface ZatcaOnboardingCredentialsRepository  extends JpaRepository<ZatcaOnboardingCredentialsEntity, String> {
 
-    ZatcaOnboardingCredentialsEntity findBySolutionProviderName(String solutionProviderName);
+    ZatcaOnboardingCredentialsEntity findByEgsClientName(String egsClientName);
+
 
 }

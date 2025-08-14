@@ -21,7 +21,7 @@ public class FileUtils {
      * @return content of the latest .csr file as a String
      * @throws IOException if no .csr file is found within the timeout or reading fails
      */
-    public static String getLatestFileContentForFileType(String fileType) throws IOException {
+    public static String getLatestFileContentForFileType(String fileType, String filePath) throws IOException {
         long startTime = System.currentTimeMillis();
         String extension = switch (fileType) {
             case ("json") -> JSON_EXTENSION;
@@ -31,7 +31,7 @@ public class FileUtils {
         };
 
         while (System.currentTimeMillis() - startTime < MAX_WAIT_TIME_MS) {
-            try (Stream<Path> files = Files.list(Paths.get(ROOT_DIR))) {
+            try (Stream<Path> files = Files.list(Paths.get(filePath))) {
                 Optional<Path> latestCsrFile = files
                         .filter(Files::isRegularFile)
                         .filter(path -> path.getFileName().toString().toLowerCase().endsWith(extension))

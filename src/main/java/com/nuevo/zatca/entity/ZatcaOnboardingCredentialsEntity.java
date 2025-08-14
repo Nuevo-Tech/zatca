@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Data
 @Entity
-@Table(name = "zatca_onboarding_credentials", uniqueConstraints = @UniqueConstraint(columnNames = "solution_provider_name"))
+@Table(name = "zatca_onboarding_credentials", uniqueConstraints = @UniqueConstraint(columnNames = {"egs_client_name", "egs_client_id"}))
 public class ZatcaOnboardingCredentialsEntity {
 
     @Id
@@ -16,8 +16,12 @@ public class ZatcaOnboardingCredentialsEntity {
     @Column(columnDefinition = "uuid")
     private UUID id;
 
-    @Column(name = "solution_provider_name", nullable = false)
-    private String solutionProviderName;
+    @Column(name = "egs_client_name", nullable = false)
+    private String egsClientName;
+
+    @OneToOne
+    @JoinColumn(name = "egs_client_entity", referencedColumnName = "id", nullable = false)
+    private EgsClientEntity egsClientEntity;
 
     @Column(name = "compliance_request_id")
     private String complianceRequestId;

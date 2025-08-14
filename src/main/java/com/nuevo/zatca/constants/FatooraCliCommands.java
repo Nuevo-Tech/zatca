@@ -18,4 +18,6 @@ public final class FatooraCliCommands {
     public static final String GENERATE_INVOICE_HASH = FATOORA + "-generateHash " + INVOICE;
     public static final String GENERATE_INVOICE_REQUEST = FATOORA + "-invoiceRequest " + INVOICE;
     public static final String SIGN_INVOICE = FATOORA + "-sign " + INVOICE;
+    public static final String CSR_OUTPUT_FILENAME = "-generatedCsr ";
+    public static final String PRIVATE_KEY_OUTPUT_FILENAME = "-privateKey";
 }
