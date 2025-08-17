@@ -42,12 +42,14 @@ public class ZatcaController {
         return zatcaService.verifyInvoiceIsZatcaCompliant(requestBody);
     }
 
-//    @Operation(summary = "Generate Invoice request and update it with newly generated invoice hash")
-//    @PostMapping("/generateInvoiceRequest")
-//    public ResponseEntity<JsonNode> genrerateInvoiceRequestAndUpdateInvoiceHash(@RequestBody Map<String, Object> requestBody) throws Exception {
-//        return zatcaService.verifyInvoiceIsZatcaCompliant(requestBody);
-//    }
+    @Deprecated
+    @Operation(summary = "Generate Invoice request and update it with newly generated invoice hash")
+    @PostMapping("/generateInvoiceRequest")
+    public ResponseEntity<JsonNode> genrerateInvoiceRequestAndUpdateInvoiceHash(@RequestBody Map<String, Object> requestBody) throws Exception {
+        return zatcaService.verifyInvoiceIsZatcaCompliant(requestBody);
+    }
 
+    @Deprecated
     @Operation(summary = "Generate zatca Production CSID")
     @PostMapping("/production/csids")
     public ResponseEntity<JsonNode> generateZatcaProductionCSID(@RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
@@ -55,13 +57,13 @@ public class ZatcaController {
     }
 
     @Operation(summary = "Report the simplified invoice/debit note/credit note to zatca")
-    @PostMapping("/invoices/reporting/single")
+    @PostMapping("/reportSimplifiedInvoice")
     public ResponseEntity<JsonNode> reportSimplifiedInvoiceOrCreditNoteOrDebitNoteToZatca(@RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
         return zatcaService.reportSimplifiedInvoiceOrCreditNoteOrDebitNoteToZatca(requestBody);
     }
 
     @Operation(summary = "Report the standard invoice/debit note/credit note to zatca")
-    @PostMapping("/invoices/clearance/single")
+    @PostMapping("/reportStandardInvoice")
     public ResponseEntity<JsonNode> reportStandardInvoiceOrCreditNoteOrDebitNoteToZatca(@RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
         return zatcaService.reportStandardInvoiceOrCreditNoteOrDebitNoteToZatca(requestBody);
     }

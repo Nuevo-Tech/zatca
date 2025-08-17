@@ -20,7 +20,7 @@ public class InvoicesEntity {
     private UUID id;
 
 
-    @Column(name = "invoice_number", unique = true)
+    @Column(name = "invoice_number", unique = true, nullable = false)
     private String invoiceNumber;
 
     @Column(name = "invoice_type")
@@ -86,9 +86,6 @@ public class InvoicesEntity {
     @Column(name = "tax_currency_code")
     private String taxCurrencyCode;
 
-    @Column(name = "zatca_compliance_status")
-    private String zatcaComplianceStatus;
-
     @Column(name = "zatca_uuid", columnDefinition = "uuid")
     private UUID zatcaUuid;
 
@@ -104,11 +101,6 @@ public class InvoicesEntity {
     @Column(name = "zatca_error_code")
     private String zatcaErrorCode;
 
-    @Column(name = "zatca_compliance_error_message")
-    private String zatcaComplianceErrorMessages;
-
-    @Column(name = "zatca_compliance_warning_message")
-    private String zatcaComplianceWarningMessages;
 
     @Column(name = "zatca_compliance_request_payload", columnDefinition = "TEXT")
     private String zatcaComplianceRequestPayload;
@@ -116,9 +108,39 @@ public class InvoicesEntity {
     @Column(name = "zatca_compliance_response", columnDefinition = "TEXT")
     private String zatcaComplianceResponse;
 
+    @Column(name = "invoice_xml_path")
+    private String invoiceXmlPath;
+
+    @Column(name = "zatca_compliance_error_message")
+    private String zatcaComplianceErrorMessages;
+
+    @Column(name = "zatca_compliance_warning_message")
+    private String zatcaComplianceWarningMessages;
+
+    @Column(name = "zatca_compliance_status")
+    private String zatcaComplianceStatus;
+
     @Column(name = "zatca_compliance_clearance_status")
     private String zatcaComplianceClearanceStatus;
 
+
+    @Column(name = "zatca_reporting_error_message")
+    private String zatcaReportingErrorMessages;
+
+    @Column(name = "zatca_reporting_warning_message")
+    private String zatcaReportingWarningMessages;
+
+    @Column(name = "zatca_reporting_response", columnDefinition = "TEXT")
+    private String zatcaReportingResponse;
+
+    @Column(name = "zatca_reporting_status")
+    private String zatcaReportingStatus;
+
+    @Column(name = "zatca_reporting_clearance_status")
+    private String zatcaReportingClearanceStatus;
+
+    @Column(name = "cleared_invoice_xml", columnDefinition = "TEXT")
+    private String clearedInvoiceXml;
 
     @Column(name = "is_cancellable")
     private Boolean isCancellable;
