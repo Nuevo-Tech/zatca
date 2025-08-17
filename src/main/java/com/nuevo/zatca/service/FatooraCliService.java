@@ -27,16 +27,19 @@ public class FatooraCliService {
     }
 
     public String fatooraGenerateInvoiceHash(String invoiceFilePathWithFileName) throws IOException {
+        String parentPath = new File(invoiceFilePathWithFileName).getParent();
+        String fileName = new File(invoiceFilePathWithFileName).getName();
         Runtime rt = Runtime.getRuntime();
-        Process pr = rt.exec(FatooraCliCommands.GENERATE_INVOICE_HASH + invoiceFilePathWithFileName);
+        Process pr = rt.exec(FatooraCliCommands.GENERATE_INVOICE_HASH + fileName, null, new File(parentPath));
         String invoiceHash = getInvoiceHashFromStreamOfCliProcess(pr);
         return invoiceHash;
     }
 
     public JsonNode fatooraGenerateInvoiceRequest(String invoiceFilePathWithFileName) throws IOException {
         String parentPath = new File(invoiceFilePathWithFileName).getParent();
+        String fileName = new File(invoiceFilePathWithFileName).getName();
         Runtime rt = Runtime.getRuntime();
-        Process pr = rt.exec(FatooraCliCommands.GENERATE_INVOICE_REQUEST + invoiceFilePathWithFileName);
+        Process pr = rt.exec(FatooraCliCommands.GENERATE_INVOICE_REQUEST + fileName, null, new File(parentPath));
         String requestJson = FileUtils.getLatestFileContentForFileType("json", parentPath);
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode invoiceRequestAsJsonNode = objectMapper.readTree(requestJson);
@@ -44,16 +47,20 @@ public class FatooraCliService {
     }
 
     public String fatooraSignInvoice(String invoiceFilePathWithFileName) throws IOException {
+        String parentPath = new File(invoiceFilePathWithFileName).getParent();
+        String fileName = new File(invoiceFilePathWithFileName).getName();
         Runtime rt = Runtime.getRuntime();
-        Process pr = rt.exec(FatooraCliCommands.SIGN_INVOICE + invoiceFilePathWithFileName);
+        Process pr = rt.exec(FatooraCliCommands.SIGN_INVOICE + fileName,null, new File(parentPath));
         String invoiceHash = getInvoiceHashFromStreamOfCliProcess(pr);
         return invoiceHash;
     }
 
     public boolean fatooraValidateInvoice(String invoiceFilePathWithFileName) throws Exception {
         try {
+            String parentPath = new File(invoiceFilePathWithFileName).getParent();
+            String fileName = new File(invoiceFilePathWithFileName).getName();
             Runtime rt = Runtime.getRuntime();
-            Process pr = rt.exec(FatooraCliCommands.VALIDATE_INVOICE + invoiceFilePathWithFileName);
+            Process pr = rt.exec(FatooraCliCommands.VALIDATE_INVOICE + fileName, null, new File(parentPath));
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
             String line;

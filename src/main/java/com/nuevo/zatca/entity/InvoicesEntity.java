@@ -20,7 +20,7 @@ public class InvoicesEntity {
     private UUID id;
 
 
-    @Column(name = "invoice_number", nullable = false, unique = true)
+    @Column(name = "invoice_number", unique = true)
     private String invoiceNumber;
 
     @Column(name = "invoice_type")
@@ -86,37 +86,44 @@ public class InvoicesEntity {
     @Column(name = "tax_currency_code")
     private String taxCurrencyCode;
 
-    @Column(name = "zatca_status")
-    private String zatcaStatus;
+    @Column(name = "zatca_compliance_status")
+    private String zatcaComplianceStatus;
 
     @Column(name = "zatca_uuid", columnDefinition = "uuid")
     private UUID zatcaUuid;
 
-    @Column(name = "zatca_hash", columnDefinition = "TEXT")
+    @Column(name = "zatca_hash")
     private String zatcaHash;
 
-    @Column(name = "zatca_qr_code", columnDefinition = "TEXT")
+    @Column(name = "zatca_qr_code")
     private String zatcaQrCode;
 
-    @Column(name = "zatca_previous_invoice_hash", columnDefinition = "TEXT")
+    @Column(name = "zatca_previous_invoice_hash")
     private String zatcaPreviousInvoiceHash;
 
     @Column(name = "zatca_error_code")
     private String zatcaErrorCode;
 
-    @Column(name = "zatca_error_message", columnDefinition = "TEXT")
-    private String zatcaErrorMessage;
+    @Column(name = "zatca_compliance_error_message")
+    private String zatcaComplianceErrorMessages;
 
-    @Column(name = "zatca_request_payload", columnDefinition = "jsonb")
-    private String zatcaRequestPayload;
+    @Column(name = "zatca_compliance_warning_message")
+    private String zatcaComplianceWarningMessages;
 
-    @Column(name = "zatca_response_payload", columnDefinition = "jsonb")
-    private String zatcaResponsePayload;
+    @Column(name = "zatca_compliance_request_payload")
+    private String zatcaComplianceRequestPayload;
+
+    @Column(name = "zatca_compliance_response")
+    private String zatcaComplianceResponse;
+
+    @Column(name = "zatca_compliance_clearance_status")
+    private String zatcaComplianceClearanceStatus;
+
 
     @Column(name = "is_cancellable")
     private Boolean isCancellable;
 
-    @Column(name = "cancellation_reason", columnDefinition = "TEXT")
+    @Column(name = "cancellation_reason")
     private String cancellationReason;
 
     // Relationships
@@ -137,6 +144,7 @@ public class InvoicesEntity {
 
     @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
+
 
     @PrePersist
     protected void onCreate() {

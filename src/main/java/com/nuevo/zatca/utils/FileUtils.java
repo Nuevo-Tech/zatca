@@ -52,6 +52,6 @@ public class FileUtils {
             }
         }
 
-        throw new IOException("No .csr file found within the timeout period (" + MAX_WAIT_TIME_MS + " ms).");
+        throw new IOException("No " + filePath + " file found within the timeout period (" + MAX_WAIT_TIME_MS + " ms).");
     }
 }

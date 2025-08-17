@@ -37,16 +37,16 @@ public class ZatcaController {
     }
 
     @Operation(summary = "Checking with zatca the invoice is in compliance")
-    @PostMapping("/compliance/invoice")
-    public ResponseEntity<JsonNode> performComplianceCheckOnInvoiceZatca(@RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
-        return zatcaService.verifyInvoiceIsZatcaCompliant(requestBody);
+    @PostMapping("/checkInvoicesCompliance")
+    public ResponseEntity<JsonNode> performComplianceCheckOnInvoiceZatca(@RequestBody Map<String, Object> requestBody,@RequestParam Map<String, Object> requestParam) throws Exception {
+        return zatcaService.verifyInvoiceIsZatcaCompliant(requestBody, requestParam);
     }
 
-    @Operation(summary = "Generate Invoice request and update it with newly generated invoice hash")
-    @PostMapping("/generateInvoiceRequest")
-    public ResponseEntity<JsonNode> genrerateInvoiceRequestAndUpdateInvoiceHash(@RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
-        return zatcaService.verifyInvoiceIsZatcaCompliant(requestBody);
-    }
+//    @Operation(summary = "Generate Invoice request and update it with newly generated invoice hash")
+//    @PostMapping("/generateInvoiceRequest")
+//    public ResponseEntity<JsonNode> genrerateInvoiceRequestAndUpdateInvoiceHash(@RequestBody Map<String, Object> requestBody) throws Exception {
+//        return zatcaService.verifyInvoiceIsZatcaCompliant(requestBody);
+//    }
 
     @Operation(summary = "Generate zatca Production CSID")
     @PostMapping("/production/csids")

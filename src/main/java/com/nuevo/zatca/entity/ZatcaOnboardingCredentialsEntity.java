@@ -2,12 +2,14 @@ package com.nuevo.zatca.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Data
 @Entity
+@ToString(exclude = "egsClientEntity")
 @Table(name = "zatca_onboarding_credentials", uniqueConstraints = @UniqueConstraint(columnNames = {"egs_client_name", "egs_client_id"}))
 public class ZatcaOnboardingCredentialsEntity {
 
