@@ -294,7 +294,7 @@ public class ZatcaService {
 
         Files.createDirectories(directoryPath); // Creates directory if not exists
         JsonNode generatedInvoiceRequest = generateInvoiceRequestAndUpdateTheInvoiceHash(directoryPath + fileName);
-        String invoiceHash = generatedInvoiceRequest.get("invoiceHash").toString();
+        String invoiceHash = generatedInvoiceRequest.get("invoiceHash").asText();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -315,10 +315,10 @@ public class ZatcaService {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode responseJson = objectMapper.readTree(response.getBody());
         JsonNode validationResults = responseJson.get("validationResults");
-        String status = validationResults.get("status").toString();
-        String errorMessages = validationResults.get("errorMessages").toString();
-        String warningMessages = validationResults.get("warningMessages").toString();
-        String clearanceStatus = responseJson.get("clearanceStatus").toString();
+        String status = validationResults.get("status").asText();
+        String errorMessages = validationResults.get("errorMessages").asText();
+        String warningMessages = validationResults.get("warningMessages").asText();
+        String clearanceStatus = responseJson.get("clearanceStatus").asText();
 
         InvoicesEntity invoicesEntity = new InvoicesEntity();
         invoicesEntity.setZatcaComplianceRequestPayload(generatedInvoiceRequest.toString());

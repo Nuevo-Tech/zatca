@@ -110,10 +110,10 @@ public class InvoicesEntity {
     @Column(name = "zatca_compliance_warning_message")
     private String zatcaComplianceWarningMessages;
 
-    @Column(name = "zatca_compliance_request_payload")
+    @Column(name = "zatca_compliance_request_payload", columnDefinition = "TEXT")
     private String zatcaComplianceRequestPayload;
 
-    @Column(name = "zatca_compliance_response")
+    @Column(name = "zatca_compliance_response", columnDefinition = "TEXT")
     private String zatcaComplianceResponse;
 
     @Column(name = "zatca_compliance_clearance_status")
