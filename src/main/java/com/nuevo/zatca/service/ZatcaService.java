@@ -276,7 +276,7 @@ public class ZatcaService {
 
 
     @Transactional
-    public ResponseEntity<JsonNode> verifyInvoiceIsZatcaCompliant(Map<String, Object> requestBody, Map<String, Object> requestParam) throws Exception {
+    public ResponseEntity<JsonNode> verifyInvoiceIsZatcaCompliant(Map<String, Object> requestBody) throws Exception {
         String egsClientName = requestBody.get("egsClientName").toString();
         ZatcaOnboardingCredentialsEntity zatcaOnboardingCredentialsEntity = zatcaOnboardingCredentialsRepository.findByEgsClientName(egsClientName);
         String username = zatcaOnboardingCredentialsEntity.getBinarySecurityToken();
