@@ -20,8 +20,11 @@ public class InvoicesEntity {
     private UUID id;
 
 
-    @Column(name = "invoice_number", unique = true, nullable = false)
+    @Column(name = "invoice_number", unique = true)
     private String invoiceNumber;
+
+    @Column(name = "invoice_id", unique = true, nullable = false)
+    private String invoiceId;
 
     @Column(name = "invoice_type")
     private String invoiceType;

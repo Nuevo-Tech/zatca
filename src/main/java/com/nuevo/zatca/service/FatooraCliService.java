@@ -132,7 +132,6 @@ public class FatooraCliService {
         if (invoiceHash == null) {
             throw new IOException("Invoice hash not found in the command output");
         }
-        System.out.println("InvoiceHasH :" + invoiceHash);
         return invoiceHash;
     }
 }

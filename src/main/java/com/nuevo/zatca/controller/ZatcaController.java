@@ -49,13 +49,6 @@ public class ZatcaController {
         return zatcaService.verifyInvoiceIsZatcaCompliant(requestBody);
     }
 
-    @Deprecated
-    @Operation(summary = "Generate zatca Production CSID")
-    @PostMapping("/production/csids")
-    public ResponseEntity<JsonNode> generateZatcaProductionCSID(@RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
-        return zatcaService.generateZatcaProductionCSID(requestBody);
-    }
-
     @Operation(summary = "Report the simplified invoice/debit note/credit note to zatca")
     @PostMapping("/reportSimplifiedInvoice")
     public ResponseEntity<JsonNode> reportSimplifiedInvoiceOrCreditNoteOrDebitNoteToZatca(@RequestBody Map<String, Object> requestBody) throws JsonProcessingException {

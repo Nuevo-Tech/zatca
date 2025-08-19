@@ -12,6 +12,7 @@ import com.nuevo.zatca.repository.EgsClientRepository;
 import com.nuevo.zatca.repository.InvoicesRepository;
 import com.nuevo.zatca.repository.ZatcaOnboardingCredentialsRepository;
 import com.nuevo.zatca.utils.FileUtils;
+import com.nuevo.zatca.utils.RestApiHelpers;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,16 +64,26 @@ public class ZatcaService {
     @Autowired
     EgsClientRepository egsClientRepository;
 
+    @Autowired
+    RestApiHelpers restApiHelpers;
+
     private final RestTemplate restTemplate = new RestTemplate();
+
+    private static final String VALIDATION_RESULTS = "validationResults";
+    private static final String STATUS = "status";
+    private static final String ERROR_MESSAGES = "errorMessages";
+    private static final String CLEARANCE_STATUS = "clearanceStatus";
+    private static final String WARNING_MESSAGES = "warningMessages";
+    private static final String INVOICE_ID = "invoiceId";
+    private static final String MESSAGE = "message";
+//    private RestApiHelpers restApiHelpers = new RestApiHelpers();
 
     @Transactional
     public ResponseEntity<JsonNode> onboardClient(@RequestBody Map<String, Object> requestBody) throws IOException {
         // Prepare headers
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(MediaType.parseMediaTypes("application/json"));
+        RestApiHelpers restApiHelpers = new RestApiHelpers();
+        HttpHeaders headers = restApiHelpers.setCommonHeadersWithZatcaAcceptVersion(zatcaAcceptVersion);
         headers.set("OTP", requestBody.get("otp").toString());
-        headers.set("Accept-version", zatcaAcceptVersion);
 
         String egsClientName = requestBody.get("egs_client_name").toString();
 
@@ -127,21 +138,16 @@ public class ZatcaService {
 
             EgsClientEntity egsClientEntity = egsClientRepository.findByEgsClientName(egsClientName);
             entity.setEgsClientEntity(egsClientEntity);
-            ZatcaOnboardingCredentialsEntity savedEntity = zatcaOnboardingCredentialsRepository.save(entity);
+            ZatcaOnboardingCredentialsEntity savedZatcaCredentialsEntity = zatcaOnboardingCredentialsRepository.save(entity);
 
-            egsClientEntity.setZatcaOnboardingCredentialsEntity(savedEntity);
+            egsClientEntity.setZatcaOnboardingCredentialsEntity(savedZatcaCredentialsEntity);
 
-            //payload to generate zatca production CSID
-            Map<String, Object> reqBodyToGeneratedProdCSID = new HashMap<>();
-            reqBodyToGeneratedProdCSID.put("acceptVersion", zatcaAcceptVersion);
-            reqBodyToGeneratedProdCSID.put("clientName", egsClientName);
-
-            ResponseEntity<JsonNode> responseProdCSID = generateZatcaProductionCSID(reqBodyToGeneratedProdCSID);
+            ResponseEntity<JsonNode> responseProdCSID = generateZatcaProductionCSID(savedZatcaCredentialsEntity);
             JsonNode responseJson = responseProdCSID.getBody();
 
             if (responseProdCSID.getStatusCode().equals(HttpStatus.OK)) {
                 Map<String, String> map = new HashMap<>();
-                map.put("message", "Successfully Onboarded the Client");
+                map.put(MESSAGE, "Successfully Onboarded the Client");
                 JsonNode successMessage = objectMapper.valueToTree(map);
                 return ResponseEntity.ok(successMessage);
             }
@@ -234,19 +240,10 @@ public class ZatcaService {
     }
 
     @Transactional
-    public ResponseEntity<JsonNode> generateZatcaProductionCSID(Map<String, Object> requestBody) throws JsonProcessingException {
-        ZatcaOnboardingCredentialsEntity zatcaOnboardingCredentialsEntity = zatcaOnboardingCredentialsRepository.findByEgsClientName(requestBody.get("clientName").toString());
-        String username = zatcaOnboardingCredentialsEntity.getBinarySecurityToken();
-        String password = zatcaOnboardingCredentialsEntity.getSecret();
-        String plainCreds = username + ":" + password;
-        String base64Creds = Base64.getEncoder().encodeToString(plainCreds.getBytes());
-
+    public ResponseEntity<JsonNode> generateZatcaProductionCSID(ZatcaOnboardingCredentialsEntity zatcaOnboardingCredentialsEntity) throws JsonProcessingException {
         // Prepare headers
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(MediaType.parseMediaTypes("application/json"));
-        headers.set("Accept-version", zatcaAcceptVersion);
-        headers.set("Authorization", "Basic " + base64Creds);
+        HttpHeaders headers = restApiHelpers.setCommonHeadersWithZatcaAcceptVersion(zatcaAcceptVersion);
+        headers = restApiHelpers.setZatcaAuthorizationHeader(zatcaOnboardingCredentialsEntity, headers);
 
         HashMap<String, String> payload = new HashMap<>();
         payload.put("compliance_request_id", zatcaOnboardingCredentialsEntity.getComplianceRequestId());
@@ -279,59 +276,78 @@ public class ZatcaService {
     public ResponseEntity<JsonNode> verifyInvoiceIsZatcaCompliant(Map<String, Object> requestBody) throws Exception {
         String egsClientName = requestBody.get("egsClientName").toString();
         ZatcaOnboardingCredentialsEntity zatcaOnboardingCredentialsEntity = zatcaOnboardingCredentialsRepository.findByEgsClientName(egsClientName);
-        String username = zatcaOnboardingCredentialsEntity.getBinarySecurityToken();
-        String password = zatcaOnboardingCredentialsEntity.getSecret();
-        String plainCreds = username + ":" + password;
-        String base64Creds = Base64.getEncoder().encodeToString(plainCreds.getBytes());
-        String invoiceId = requestBody.get("invoiceId").toString();
 
-        String dirName = "xml_invoice_id_" + invoiceId;
-        Path directoryPath = Paths.get("src", "main", "resources", "xmlinvoices", dirName);
 
-        //TODO : write code to create xml invoices for simplified/standard/creditnote/debitnote here
-
-        String fileName = "/" + "Standard_Invoice.xml";
-        String fileNameWithPath = directoryPath + fileName;
-
-        Files.createDirectories(directoryPath); // Creates directory if not exists
-        JsonNode generatedInvoiceRequest = generateInvoiceRequestAndUpdateTheInvoiceHash(fileNameWithPath);
-        String invoiceHash = generatedInvoiceRequest.get("invoiceHash").asText();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpHeaders headers = restApiHelpers.setCommonHeadersWithZatcaAcceptVersion(zatcaAcceptVersion);
+        headers = restApiHelpers.setZatcaAuthorizationHeader(zatcaOnboardingCredentialsEntity, headers);
         headers.set("Accept-Language", requestBody.get("acceptLanguage").toString());
-        headers.set("Accept-version", zatcaAcceptVersion);
-        headers.set("Authorization", "Basic " + base64Creds);
 
-        HttpEntity<JsonNode> requestEntity = new HttpEntity<>(generatedInvoiceRequest, headers);
+
+        List<String> invoiceIds = (List<String>) requestBody.get("invoiceIds");
+
         String invoiceComplianceUrl = zatcaEndpoint + "/compliance/invoices";
 
-        ResponseEntity<String> response = restTemplate.exchange(
-                invoiceComplianceUrl,
-                HttpMethod.POST,
-                requestEntity,
-                String.class
-        );
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode responseJson = objectMapper.readTree(response.getBody());
-        JsonNode validationResults = responseJson.get("validationResults");
-        String status = validationResults.get("status").asText();
-        String errorMessages = validationResults.get("errorMessages").asText();
-        String warningMessages = validationResults.get("warningMessages").asText();
-        String clearanceStatus = responseJson.get("clearanceStatus").asText();
+        List<Map<String, Object>> invoices = new ArrayList<>();
 
-        InvoicesEntity invoicesEntity = new InvoicesEntity();
-        invoicesEntity.setZatcaComplianceRequestPayload(generatedInvoiceRequest.toString());
-        invoicesEntity.setZatcaComplianceResponse(response.getBody());
-        invoicesEntity.setZatcaComplianceStatus(status);
-        invoicesEntity.setZatcaComplianceErrorMessages(errorMessages);
-        invoicesEntity.setZatcaComplianceWarningMessages(warningMessages);
-        invoicesEntity.setZatcaHash(invoiceHash);
-        invoicesEntity.setZatcaComplianceClearanceStatus(clearanceStatus);
-        invoicesEntity.setInvoiceXmlPath(fileNameWithPath);
-        invoicesEntity.setInvoiceNumber(invoiceId);
-        invoicesRepository.save(invoicesEntity);
+        for (String invoiceId : invoiceIds) {
+            String dirName = "xml_invoice_id_" + invoiceId;
+            Path directoryPath = Paths.get("src", "main", "resources", "xmlinvoices", dirName);
+
+            //TODO : write code to create xml invoices for simplified/standard/creditnote/debitnote here
+
+            String fileName = "/" + "Standard_Invoice.xml";
+            String fileNameWithPath = directoryPath + fileName;
+
+            Files.createDirectories(directoryPath); // Creates directory if not exists
+            JsonNode generatedInvoiceRequest = generateInvoiceRequestAndUpdateTheInvoiceHash(fileNameWithPath);
+            String invoiceHash = generatedInvoiceRequest.get("invoiceHash").asText();
+
+            HttpEntity<JsonNode> requestEntity = new HttpEntity<>(generatedInvoiceRequest, headers);
+
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    invoiceComplianceUrl,
+                    HttpMethod.POST,
+                    requestEntity,
+                    String.class
+            );
+
+            JsonNode responseJson = objectMapper.readTree(response.getBody());
+            JsonNode validationResults = responseJson.get(VALIDATION_RESULTS);
+            String status = validationResults.get(STATUS).asText();
+            String errorMessages = validationResults.get(ERROR_MESSAGES).asText();
+            String warningMessages = validationResults.get(WARNING_MESSAGES).asText();
+            String clearanceStatus = responseJson.get(CLEARANCE_STATUS).asText();
+
+            InvoicesEntity invoicesEntity = invoicesRepository.findByInvoiceId(invoiceId);
+            if (invoicesEntity == null) {
+                invoicesEntity = new InvoicesEntity();
+                invoicesEntity.setInvoiceId(invoiceId);
+            }
+
+            invoicesEntity.setZatcaComplianceRequestPayload(generatedInvoiceRequest.toString());
+            invoicesEntity.setZatcaComplianceResponse(response.getBody());
+            invoicesEntity.setZatcaComplianceStatus(status);
+            invoicesEntity.setZatcaComplianceErrorMessages(errorMessages);
+            invoicesEntity.setZatcaComplianceWarningMessages(warningMessages);
+            invoicesEntity.setZatcaHash(invoiceHash);
+            invoicesEntity.setZatcaComplianceClearanceStatus(clearanceStatus);
+            invoicesEntity.setInvoiceXmlPath(fileNameWithPath);
+            invoicesEntity.setInvoiceNumber(invoiceId);
+            invoicesRepository.save(invoicesEntity);
+
+
+            Map<String, Object> map = new HashMap<>();
+            map.put(INVOICE_ID, invoiceId);
+            map.put(STATUS, status);
+            map.put(CLEARANCE_STATUS, clearanceStatus);
+            map.put(WARNING_MESSAGES, validationResults.get(WARNING_MESSAGES));
+            map.put(ERROR_MESSAGES, validationResults.get(ERROR_MESSAGES));
+            invoices.add(map);
+        }
+
+        JsonNode responseJson = objectMapper.valueToTree(invoices);
         return ResponseEntity.ok(responseJson);
     }
 
@@ -349,18 +365,10 @@ public class ZatcaService {
     public ResponseEntity<JsonNode> reportSimplifiedInvoiceOrCreditNoteOrDebitNoteToZatca(Map<String, Object> requestBody) throws JsonProcessingException {
 
         ZatcaOnboardingCredentialsEntity zatcaOnboardingCredentialsEntity = zatcaOnboardingCredentialsRepository.findByEgsClientName(requestBody.get("clientName").toString());
-        String username = zatcaOnboardingCredentialsEntity.getProdBinarySecurityToken();
-        String password = zatcaOnboardingCredentialsEntity.getProdSecret();
-        String plainCreds = username + ":" + password;
-        String base64Creds = Base64.getEncoder().encodeToString(plainCreds.getBytes());
-
         // Prepare headers
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(MediaType.parseMediaTypes("application/json"));
-        headers.set("Accept-version", zatcaAcceptVersion);
+        HttpHeaders headers = restApiHelpers.setCommonHeadersWithZatcaAcceptVersion(zatcaAcceptVersion);
+        headers = restApiHelpers.setZatcaProdAuthorizationHeader(zatcaOnboardingCredentialsEntity, headers);
         headers.set("Accept-Language", requestBody.get("acceptLanguage").toString());
-        headers.set("Authorization", "Basic " + base64Creds);
 
         ObjectMapper objectMapper = new ObjectMapper();
         Object generatedInvoiceObj = requestBody.get("generatedInvoiceRequest");
@@ -379,28 +387,28 @@ public class ZatcaService {
         return ResponseEntity.ok(responseJson);
     }
 
-@Transactional
+    @Transactional
     public ResponseEntity<JsonNode> reportStandardInvoiceOrCreditNoteOrDebitNoteToZatca(Map<String, Object> requestBody) throws JsonProcessingException {
 
         ZatcaOnboardingCredentialsEntity zatcaOnboardingCredentialsEntity = zatcaOnboardingCredentialsRepository.findByEgsClientName(requestBody.get("egsClientName").toString());
-        String username = zatcaOnboardingCredentialsEntity.getProdBinarySecurityToken();
-        String password = zatcaOnboardingCredentialsEntity.getProdSecret();
-        String plainCreds = username + ":" + password;
-        String base64Creds = Base64.getEncoder().encodeToString(plainCreds.getBytes());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(MediaType.parseMediaTypes("application/json"));
-        headers.set("Accept-version", zatcaAcceptVersion);
+        HttpHeaders headers = restApiHelpers.setCommonHeadersWithZatcaAcceptVersion(zatcaAcceptVersion);
+        headers = restApiHelpers.setZatcaProdAuthorizationHeader(zatcaOnboardingCredentialsEntity, headers);
         headers.set("Accept-Language", requestBody.get("acceptLanguage").toString());
-        headers.set("Authorization", "Basic " + base64Creds);
 
-        List<String> invoiceNumbers = (List<String>) requestBody.get("invoiceNumbers");
+        List<String> invoiceIds = (List<String>) requestBody.get("invoiceIds");
         ObjectMapper objectMapper = new ObjectMapper();
         List<Map<String, Object>> invoices = new ArrayList<>();
 
-        for (String invoiceNumber : invoiceNumbers) {
-            InvoicesEntity invoicesEntity = invoicesRepository.findByInvoiceNumber(invoiceNumber);
+        for (String invoiceId : invoiceIds) {
+            InvoicesEntity invoicesEntity = invoicesRepository.findByInvoiceId(invoiceId);
+            Map<String, Object> map = new HashMap<>();
+            if (invoicesEntity == null) {
+                map.put(INVOICE_ID, invoiceId);
+                map.put(MESSAGE, "InvoiceId not found please validate before submitting to zatca");
+                invoices.add(map);
+                continue;
+            }
+
             String generatedInvoiceObj = invoicesEntity.getZatcaComplianceRequestPayload();
             JsonNode jsonNode = objectMapper.readTree(generatedInvoiceObj);
 
@@ -414,11 +422,11 @@ public class ZatcaService {
                     String.class
             );
             JsonNode responseJson = objectMapper.readTree(response.getBody());
-            JsonNode validationResults = responseJson.get("validationResults");
-            String status = validationResults.get("status").asText();
-            String errorMessages = validationResults.get("errorMessages").asText();
-            String warningMessages = validationResults.get("warningMessages").asText();
-            String clearanceStatus = responseJson.get("clearanceStatus").asText();
+            JsonNode validationResults = responseJson.get(VALIDATION_RESULTS);
+            String status = validationResults.get(STATUS).asText();
+            String errorMessages = validationResults.get(ERROR_MESSAGES).asText();
+            String warningMessages = validationResults.get(WARNING_MESSAGES).asText();
+            String clearanceStatus = responseJson.get(CLEARANCE_STATUS).asText();
             String encodedClearedInvoiceXml = responseJson.get("clearedInvoice").asText();
 
             invoicesEntity.setZatcaReportingStatus(status);
@@ -429,12 +437,12 @@ public class ZatcaService {
             invoicesEntity.setClearedInvoiceXml(encodedClearedInvoiceXml);
             invoicesRepository.save(invoicesEntity);
 
-            Map<String, Object> map = new HashMap<>();
-            map.put("invoiceNumber", invoiceNumber);
-            map.put("status", status);
-            map.put("clearanceStatus", clearanceStatus);
-            map.put("warningMessages", validationResults.get("warningMessages"));
-            map.put("errorMessages",validationResults.get("errorMessages"));
+
+            map.put(INVOICE_ID, invoiceId);
+            map.put(STATUS, status);
+            map.put(CLEARANCE_STATUS, clearanceStatus);
+            map.put(WARNING_MESSAGES, validationResults.get(WARNING_MESSAGES));
+            map.put(ERROR_MESSAGES, validationResults.get(ERROR_MESSAGES));
             invoices.add(map);
         }
 
