@@ -8,10 +8,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -32,7 +34,7 @@ public class ZatcaController {
 
     @Operation(summary = "Onboarding EGS Unit and generate CSID")
     @PostMapping("/onboardClient")
-    public ResponseEntity<JsonNode> onboardEGSAndGenerateZatcaCSID(@RequestBody Map<String, Object> requestBody) throws IOException {
+    public ResponseEntity<JsonNode> onboardEGSAndGenerateZatcaCSID(@RequestBody Map<String, Object> requestBody) throws Exception {
         return zatcaService.onboardClient(requestBody);
     }
 

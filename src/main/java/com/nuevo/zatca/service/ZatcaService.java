@@ -11,7 +11,7 @@ import com.nuevo.zatca.entity.ZatcaOnboardingCredentialsEntity;
 import com.nuevo.zatca.repository.EgsClientRepository;
 import com.nuevo.zatca.repository.InvoicesRepository;
 import com.nuevo.zatca.repository.ZatcaOnboardingCredentialsRepository;
-import com.nuevo.zatca.utils.FileUtils;
+import com.nuevo.zatca.service.sdkservices.ZatcaSdkHelper;
 import com.nuevo.zatca.utils.RestApiHelpers;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.transaction.Transactional;
@@ -22,12 +22,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+//import com.zatca.sdk.service.CsrGenerationService;
+//import com.zatca.configuration.
 
 /**
  * Step1: onboardEgsUnit [one time setup only]
@@ -67,6 +75,7 @@ public class ZatcaService {
     @Autowired
     RestApiHelpers restApiHelpers;
 
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     private static final String VALIDATION_RESULTS = "validationResults";
@@ -76,31 +85,33 @@ public class ZatcaService {
     private static final String WARNING_MESSAGES = "warningMessages";
     private static final String INVOICE_ID = "invoiceId";
     private static final String MESSAGE = "message";
-//    private RestApiHelpers restApiHelpers = new RestApiHelpers();
 
     @Transactional
-    public ResponseEntity<JsonNode> onboardClient(@RequestBody Map<String, Object> requestBody) throws IOException {
+    public ResponseEntity<JsonNode> onboardClient(@RequestBody Map<String, Object> requestBody) throws Exception {
         // Prepare headers
+
         RestApiHelpers restApiHelpers = new RestApiHelpers();
         HttpHeaders headers = restApiHelpers.setCommonHeadersWithZatcaAcceptVersion(zatcaAcceptVersion);
         headers.set("OTP", requestBody.get("otp").toString());
 
         String egsClientName = requestBody.get("egs_client_name").toString();
 
-        String csrPropertiesFileNameWithPath = createCsrPropertiesFileAndGetItsLocation(requestBody);
-        String csr = fatooraCliService.fatooraGenerateCsrForFile(csrPropertiesFileNameWithPath);
-
-        String csrPrivateKey = "";
-        if (csr != null || !csr.isEmpty()) {
-            String parentPath = new File(csrPropertiesFileNameWithPath).getParent();
-            csrPrivateKey = FileUtils.getLatestFileContentForFileType("key", parentPath);
-        }
-
+        ObjectMapper mapper = new ObjectMapper();
+        InputStream csrPropertiesInputStream = createCsrPropertiesFileAndGetItsLocation(requestBody);
+        ZatcaSdkHelper zatcaSdkHelper = new ZatcaSdkHelper();
+        String csrAndPrivateKeyString = zatcaSdkHelper.generateCsrAndPrivateKey(csrPropertiesInputStream, true);
+        JsonNode csrAndPrivateKeyJson = mapper.readTree(csrAndPrivateKeyString);
+        String csr = csrAndPrivateKeyJson.get("csr").asText();
+        String csrPrivateKey = csrAndPrivateKeyJson.get("privateKey").asText();
 
         if (csr == null || csr.isEmpty()) {
-            ObjectMapper mapper = new ObjectMapper();
+
             ObjectNode error = mapper.createObjectNode();
             error.put("error", "CSR is missing");
+            return ResponseEntity.badRequest().body(error);
+        } else if (csrPrivateKey == null || csrPrivateKey.isEmpty()) {
+            ObjectNode error = mapper.createObjectNode();
+            error.put("error", "privateKey is missing");
             return ResponseEntity.badRequest().body(error);
         }
 
@@ -158,7 +169,7 @@ public class ZatcaService {
     }
 
     @Transactional
-    public String createCsrPropertiesFileAndGetItsLocation(Map<String, Object> requestBody) throws IOException {
+    public InputStream createCsrPropertiesFileAndGetItsLocation(Map<String, Object> requestBody) throws IOException {
         String egsClientName = requestBody.get("egs_client_name").toString();
         String vatRegistrationNumber = requestBody.get("vat_registration_number").toString();
         String city = requestBody.get("city").toString();
@@ -203,25 +214,9 @@ public class ZatcaService {
         sb.append("csr.industry.business.category=").append(industryType);
         String csrProperties = sb.toString();
 
+        InputStream csrPropertiesInputStream = new ByteArrayInputStream(csrProperties.getBytes(StandardCharsets.UTF_8));
 
-        String dirName = egsClientSerielNumber;
-        Path directoryPath = Paths.get("src", "main", "resources", "egsclients", dirName);
-        Files.createDirectories(directoryPath); // Creates directory if not exists
-
-        String fileName = "csr-" + egsClientSerielNumber + ".properties";
-        // Target file inside the new directory
-        Path filePath = directoryPath.resolve(fileName);
-
-        try {
-            // Write the file
-            Files.write(filePath, csrProperties.getBytes());
-            System.out.println("File written successfully at: " + directoryPath);
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-        String fileNameWithPath = directoryPath + "/" + fileName;
         EgsClientEntity egsClientEntity = new EgsClientEntity();
-        egsClientEntity.setFilepathCsrProperties(fileNameWithPath);
         egsClientEntity.setEgsClientName(egsClientName);
         egsClientEntity.setVatRegistrationNumber(vatRegistrationNumber);
         egsClientEntity.setEgsClientSerielNumber(egsClientSerielNumber);
@@ -236,7 +231,7 @@ public class ZatcaService {
         egsClientEntity.setOrganizationUnit(organizationUnit);
         egsClientEntity.setEmail(email);
         egsClientRepository.save(egsClientEntity);
-        return fileNameWithPath;
+        return csrPropertiesInputStream;
     }
 
     @Transactional
@@ -300,7 +295,10 @@ public class ZatcaService {
             String fileNameWithPath = directoryPath + fileName;
 
             Files.createDirectories(directoryPath); // Creates directory if not exists
+            long start = System.nanoTime();
             JsonNode generatedInvoiceRequest = generateInvoiceRequestAndUpdateTheInvoiceHash(fileNameWithPath);
+            long end = System.nanoTime();
+            System.out.println("Time taken: " + (end - start) / 1_000_000 + " ms");
             String invoiceHash = generatedInvoiceRequest.get("invoiceHash").asText();
 
             HttpEntity<JsonNode> requestEntity = new HttpEntity<>(generatedInvoiceRequest, headers);
@@ -437,7 +435,6 @@ public class ZatcaService {
             invoicesEntity.setClearedInvoiceXml(encodedClearedInvoiceXml);
             invoicesRepository.save(invoicesEntity);
 
-
             map.put(INVOICE_ID, invoiceId);
             map.put(STATUS, status);
             map.put(CLEARANCE_STATUS, clearanceStatus);
@@ -445,7 +442,6 @@ public class ZatcaService {
             map.put(ERROR_MESSAGES, validationResults.get(ERROR_MESSAGES));
             invoices.add(map);
         }
-
         JsonNode responseJson = objectMapper.valueToTree(invoices);
         return ResponseEntity.ok(responseJson);
     }

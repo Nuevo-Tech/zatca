@@ -62,9 +62,6 @@ public class EgsClientEntity {
     @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
 
-    @Column(name = "filepath_csr_properties")
-    private String filepathCsrProperties;
-
     @Column(name = "organization_unit")
     private String organizationUnit;
 
