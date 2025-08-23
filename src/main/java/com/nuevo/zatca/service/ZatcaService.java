@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -350,12 +351,16 @@ public class ZatcaService {
     }
 
 
-    public JsonNode generateInvoiceRequestAndUpdateTheInvoiceHash(String invoiceXmlFileNameWithPath) throws IOException {
-        FatooraCliService fatooraCliService = new FatooraCliService();
-        JsonNode invoiceRequest = fatooraCliService.fatooraGenerateInvoiceRequest(invoiceXmlFileNameWithPath);
-        String invoiceHash = fatooraCliService.fatooraGenerateInvoiceHash(invoiceXmlFileNameWithPath);
+    public JsonNode generateInvoiceRequestAndUpdateTheInvoiceHash(String invoiceXmlFileNameWithPath) throws Exception {
+        InputStream standardInvoiceXmlInputStream = new FileInputStream(invoiceXmlFileNameWithPath);
+        ZatcaSdkHelper zatcaSdkHelper = new ZatcaSdkHelper();
+        String invoiceRequestString = zatcaSdkHelper.generateInvoiceRequest(standardInvoiceXmlInputStream, true);
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode invoiceRequest = mapper.readTree(invoiceRequestString);
+        ZatcaSdkHelper zatcaSdkHelper2 = new ZatcaSdkHelper();
+        InputStream standardInvoiceXmlInputStream2 = new FileInputStream(invoiceXmlFileNameWithPath);
+        String invoiceHash = zatcaSdkHelper2.generateInvoiceHash(standardInvoiceXmlInputStream2, true);
         invoiceRequest = ((ObjectNode) invoiceRequest).put("invoiceHash", invoiceHash);
-
         return invoiceRequest;
     }
 

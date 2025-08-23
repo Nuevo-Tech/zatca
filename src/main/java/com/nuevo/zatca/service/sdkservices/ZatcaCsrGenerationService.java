@@ -48,7 +48,7 @@ public class ZatcaCsrGenerationService extends ZatcaGeneratorTemplate {
 
 
     public boolean loadInput() {
-        Properties csrInputDataProperty = this.loadCsrConfigFile(this.property.getInputStreamOfCsrConfig());
+        Properties csrInputDataProperty = this.loadCsrConfigFile(this.property.getFileInputStream());
         if (csrInputDataProperty.isEmpty()) {
             return false;
         } else {

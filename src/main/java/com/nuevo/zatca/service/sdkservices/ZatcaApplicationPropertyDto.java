@@ -20,7 +20,7 @@ public class ZatcaApplicationPropertyDto extends ApplicationPropertyDto {
     private String csrConfigFileName;
     private String privateKeyFileName;
     private String csrFileName;
-    private InputStream inputStreamOfCsrConfig;
+    private InputStream fileInputStream;
 
     public ZatcaApplicationPropertyDto() {
     }
@@ -36,19 +36,15 @@ public class ZatcaApplicationPropertyDto extends ApplicationPropertyDto {
         this.outputInvoiceFileName = outputInvoiceFileName;
     }
 
-    public ZatcaApplicationPropertyDto(boolean generateInvoiceRequest, String invoiceFileName, String invoiceRequestFileName, boolean generateSignature, String outputInvoiceFileName) {
+    public ZatcaApplicationPropertyDto(boolean generateInvoiceRequest, InputStream fileInputStream, boolean generateSignature, String outputInvoiceFileName) {
         this.generateInvoiceRequest = generateInvoiceRequest;
-        this.invoiceFileName = invoiceFileName;
-        this.invoiceRequestFileName = invoiceRequestFileName;
-        this.outputInvoiceFileName = outputInvoiceFileName;
+       this.fileInputStream = fileInputStream;
         this.generateSignature = generateSignature;
     }
 
-    public ZatcaApplicationPropertyDto(boolean generateHash, String invoiceFileName, String invoiceRequestFileName, String outputInvoiceFileName, boolean generateQr) {
+    public ZatcaApplicationPropertyDto(boolean generateHash, InputStream fileInputStream, boolean generateQr) {
         this.generateHash = generateHash;
-        this.invoiceFileName = invoiceFileName;
-        this.invoiceRequestFileName = invoiceRequestFileName;
-        this.outputInvoiceFileName = outputInvoiceFileName;
+        this.fileInputStream = fileInputStream;
         this.generateQr = generateQr;
     }
 
@@ -61,9 +57,9 @@ public class ZatcaApplicationPropertyDto extends ApplicationPropertyDto {
         this.generateQr = generateQr;
     }
 
-    public ZatcaApplicationPropertyDto(boolean generateCsr, InputStream inputStreamOfCsrConfig, boolean isPemFormat, boolean isNonPrd, boolean simulation) {
+    public ZatcaApplicationPropertyDto(boolean generateCsr, InputStream fileInputStream, boolean isPemFormat, boolean isNonPrd, boolean simulation) {
         this.generateCsr = generateCsr;
-        this.inputStreamOfCsrConfig = inputStreamOfCsrConfig;
+        this.fileInputStream = fileInputStream;
         this.outputPemFormat = isPemFormat;
         this.nonPrdServer = isNonPrd;
         this.isSimulation = simulation;
@@ -133,8 +129,8 @@ public class ZatcaApplicationPropertyDto extends ApplicationPropertyDto {
         return this.csrFileName;
     }
 
-    public InputStream getInputStreamOfCsrConfig() {
-        return this.inputStreamOfCsrConfig;
+    public InputStream getFileInputStream() {
+        return this.fileInputStream;
     }
 
     public void setGenerateQr(boolean generateQr) {
@@ -197,8 +193,8 @@ public class ZatcaApplicationPropertyDto extends ApplicationPropertyDto {
         this.csrFileName = csrFileName;
     }
 
-    public void setInputStreamOfCsrConfig(InputStream inputStreamOfCsrConfig) {
-        this.inputStreamOfCsrConfig = inputStreamOfCsrConfig;
+    public void setFileInputStream(InputStream fileInputStream) {
+        this.fileInputStream = fileInputStream;
     }
 
     public boolean equals(Object o) {
