@@ -126,6 +126,9 @@ public class InvoicesEntity {
     @Column(name = "zatca_compliance_clearance_status")
     private String zatcaComplianceClearanceStatus;
 
+    @Column(name = "zatca_compliance_reporting_status")
+    private String zatcaComplianceReportingStatus;
+
 
     @Column(name = "zatca_reporting_error_message")
     private String zatcaReportingErrorMessages;

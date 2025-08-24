@@ -21,4 +21,7 @@ public final class ZatcaAttributes {
     public static final String INVOICE_TYPE_DEBIT_NOTE = "0001";
     public static final String INVOICE_TYPE_B2B_B2G_B2C = "1100";
     public static final String INVOICE_TYPE_ALL = "1111";
+    public static final String SIMPLIFIED_INVOICE = "SimplifiedInvoice";
+    public static final String STANDARD_INVOICE = "StandardInvoice";
+
 }

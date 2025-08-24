@@ -10,10 +10,12 @@ import java.security.Security;
 @SpringBootApplication
 public class ZatcaApplication {
 
+//    static {
+//        Security.addProvider(new BouncyCastleProvider());
+//        Security.insertProviderAt(new BouncyCastleProvider(), 1);
+//    }
+
     public static void main(String[] args) throws Exception {
-        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
-            Security.addProvider(new BouncyCastleProvider());
-        }
         SpringApplication.run(ZatcaApplication.class, args);
         FatooraCliService fatooraCliService = new FatooraCliService();
 //        System.out.println(fatooraCliService.fatooraGenerateCsrForFile("csr-config-template.properties"));

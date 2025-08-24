@@ -21,6 +21,8 @@ public class ZatcaApplicationPropertyDto extends ApplicationPropertyDto {
     private String privateKeyFileName;
     private String csrFileName;
     private InputStream fileInputStream;
+    private String inputPrivateKey;
+    private String inputCertificate;
 
     public ZatcaApplicationPropertyDto() {
     }
@@ -30,16 +32,20 @@ public class ZatcaApplicationPropertyDto extends ApplicationPropertyDto {
         this.invoiceFileName = invoiceFileName;
     }
 
-    public ZatcaApplicationPropertyDto(boolean generateSignature, String invoiceFileName, String outputInvoiceFileName) {
+    public ZatcaApplicationPropertyDto(boolean generateSignature, String invoiceFileName, String outputInvoiceFileName, String inputPrivateKey, String inputCertificate) {
         this.generateSignature = generateSignature;
         this.invoiceFileName = invoiceFileName;
         this.outputInvoiceFileName = outputInvoiceFileName;
+        this.inputPrivateKey = inputPrivateKey;
+        this.inputCertificate = inputCertificate;
     }
 
-    public ZatcaApplicationPropertyDto(boolean generateInvoiceRequest, InputStream fileInputStream, boolean generateSignature, String outputInvoiceFileName) {
+    public ZatcaApplicationPropertyDto(boolean generateInvoiceRequest, InputStream fileInputStream, boolean generateSignature, String outputInvoiceFileName, String inputPrivateKey, String inputCertificate) {
         this.generateInvoiceRequest = generateInvoiceRequest;
-       this.fileInputStream = fileInputStream;
+        this.fileInputStream = fileInputStream;
         this.generateSignature = generateSignature;
+        this.inputPrivateKey = inputPrivateKey;
+        this.inputCertificate = inputCertificate;
     }
 
     public ZatcaApplicationPropertyDto(boolean generateHash, InputStream fileInputStream, boolean generateQr) {
@@ -133,6 +139,14 @@ public class ZatcaApplicationPropertyDto extends ApplicationPropertyDto {
         return this.fileInputStream;
     }
 
+    public String getInputPrivateKey() {
+        return this.inputPrivateKey;
+    }
+
+    public String getInputCertificate() {
+        return this.inputCertificate;
+    }
+
     public void setGenerateQr(boolean generateQr) {
         this.generateQr = generateQr;
     }
@@ -195,6 +209,14 @@ public class ZatcaApplicationPropertyDto extends ApplicationPropertyDto {
 
     public void setFileInputStream(InputStream fileInputStream) {
         this.fileInputStream = fileInputStream;
+    }
+
+    public void setInputPrivateKey(String inputPrivateKey) {
+        this.inputPrivateKey = inputPrivateKey;
+    }
+
+    public void setInputCertificate(String inputCertificate) {
+        this.inputCertificate = inputCertificate;
     }
 
     public boolean equals(Object o) {
