@@ -10,10 +10,9 @@ import java.security.Security;
 @SpringBootApplication
 public class ZatcaApplication {
 
-//    static {
-//        Security.addProvider(new BouncyCastleProvider());
-//        Security.insertProviderAt(new BouncyCastleProvider(), 1);
-//    }
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     public static void main(String[] args) throws Exception {
         SpringApplication.run(ZatcaApplication.class, args);

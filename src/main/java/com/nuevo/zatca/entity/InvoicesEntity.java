@@ -120,8 +120,8 @@ public class InvoicesEntity {
     @Column(name = "zatca_compliance_warning_message")
     private String zatcaComplianceWarningMessages;
 
-    @Column(name = "zatca_compliance_status")
-    private String zatcaComplianceStatus;
+    @Column(name = "zatca_compliance_validation_status")
+    private String zatcaComplianceValidationStatus;
 
     @Column(name = "zatca_compliance_clearance_status")
     private String zatcaComplianceClearanceStatus;
@@ -141,6 +141,9 @@ public class InvoicesEntity {
 
     @Column(name = "zatca_reporting_status")
     private String zatcaReportingStatus;
+
+    @Column(name = "zatca_reporting_validation_status")
+    private String zatcaReportingValidationStatus;
 
     @Column(name = "zatca_reporting_clearance_status")
     private String zatcaReportingClearanceStatus;

@@ -51,15 +51,10 @@ public class ZatcaController {
         return zatcaService.verifyInvoiceIsZatcaCompliant(requestBody);
     }
 
-    @Operation(summary = "Report the simplified invoice/debit note/credit note to zatca")
-    @PostMapping("/reportSimplifiedInvoice")
-    public ResponseEntity<JsonNode> reportSimplifiedInvoiceOrCreditNoteOrDebitNoteToZatca(@RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
-        return zatcaService.reportSimplifiedInvoiceOrCreditNoteOrDebitNoteToZatca(requestBody);
+    @Operation(summary = "Report the simplified/standard invoice/debit note/credit note to zatca")
+    @PostMapping("/reportInvoice")
+    public ResponseEntity<JsonNode> reportStandardOrSimplifiedInvoiceOrCreditNoteOrDebitNoteToZatca(@RequestBody Map<String, Object> requestBody) throws Exception {
+        return zatcaService.reportStandardOrSimplifiedInvoiceOrCreditNoteOrDebitNoteToZatca(requestBody);
     }
 
-    @Operation(summary = "Report the standard invoice/debit note/credit note to zatca")
-    @PostMapping("/reportStandardInvoice")
-    public ResponseEntity<JsonNode> reportStandardInvoiceOrCreditNoteOrDebitNoteToZatca(@RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
-        return zatcaService.reportStandardInvoiceOrCreditNoteOrDebitNoteToZatca(requestBody);
-    }
 }
